@@ -5,6 +5,8 @@ void show() {
 
   verificarAprovacao();
   descontar();
+
+  calcularValorSkin();
 }
 
 // 2 notas, calcular, media, informar se esta aprovado ou reprovado
@@ -59,6 +61,20 @@ void descontar() {
 // fazer exemplo
 // fazer comentarios sobre
 
+void calcularValorSkin() {
+  int precoBase = 800;
 
+  var raridades = <String>["Comum", "Raro", "Épico", "Lendário"];
 
+  var armas = <String>["Pistola", "Escopeta", "Rifle"];
 
+  print("raridade id (1-4): ");
+  int raridadeId = int.parse(stdin.readLineSync() ?? "0");
+
+  print("arma id (1-3): ");
+  int armaId = int.parse(stdin.readLineSync() ?? "0");
+
+  print("arma: ${armas[armaId - 1]}");
+  print("raridade: ${raridades[raridadeId - 1]}");
+  print("preço: ${(armaId + raridadeId) * precoBase}");
+}

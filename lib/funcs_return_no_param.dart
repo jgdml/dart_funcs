@@ -6,6 +6,11 @@ void show() {
   print(verificarAprovacao());
 
   print(descontar());
+
+  var infoSkin = calcularValorSkin();
+  print(infoSkin["arma"]);
+  print(infoSkin["raridade"]);
+  print(infoSkin["preco"]);
 }
 
 String verificarAprovacao() {
@@ -47,4 +52,24 @@ double descontar() {
   }
 
   return saldo;
+}
+
+Map<String, dynamic> calcularValorSkin() {
+  int precoBase = 800;
+
+  var raridades = <String>["Comum", "Raro", "Épico", "Lendário"];
+
+  var armas = <String>["Pistola", "Escopeta", "Rifle"];
+
+  print("raridade id (1-4): ");
+  int raridadeId = int.parse(stdin.readLineSync() ?? "0");
+
+  print("arma id (1-3): ");
+  int armaId = int.parse(stdin.readLineSync() ?? "0");
+
+  return {
+    "arma": armas[armaId - 1],
+    "raridade": raridades[raridadeId - 1],
+    "preco": (armaId + raridadeId) * precoBase,
+  };
 }
