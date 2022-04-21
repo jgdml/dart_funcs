@@ -1,5 +1,10 @@
 void show() {
   verificarAprovacao(10, 5, verificarPelaMedia);
+
+  verificarAprovacao(10, 5, (nota1, nota2) {
+    double media = (nota1 + nota2) / 2;
+    return media >= 6 ? "Aprovado" : "Reprovado";
+  });
 }
 
 /*
