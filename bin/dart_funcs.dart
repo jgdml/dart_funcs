@@ -1,13 +1,7 @@
-import 'package:dart_funcs/funcs_no_return_no_param.dart' as fnrnp;
-import 'package:dart_funcs/funcs_no_return_param.dart' as fnrp;
-import 'package:dart_funcs/funcs_return_no_param.dart' as frnp;
-import 'package:dart_funcs/funcs_return_param.dart' as frp;
-import 'package:dart_funcs/funcs.dart' as f;
+import 'package:dart_funcs/a1_funcs/main_funcs.dart' as f;
+import 'package:dart_funcs/a2_async_funcs/main_async_funcs.dart' as async_f;
 
 void main(List<String> arguments) {
-  // fnrnp.show();
-  // fnrp.show();
-  // frnp.show();
-  frp.show();
-  // f.show();
+  // f.init();
+  async_f.init();
 }
