@@ -6,7 +6,7 @@ void init() {
   // print(verificarAprovacao(1, 5.2, 7.8));
   // print(calcSalario(3, 1000, 250));
   var lista = <String>["b", "a", "a", "c", "c"];
-  listar(lista, filtrarRepetidos);
+  listar(lista, filtro: ordenar, filtroParametro: 'asc');
 }
 
 /*
