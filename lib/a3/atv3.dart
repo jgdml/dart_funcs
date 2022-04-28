@@ -13,9 +13,16 @@ Exercício 02 - para cada função "hospedeira", defina uma função anônima.
 
 void init() {
   // readNum();
+
+  calcTempo(DateTime(2022, 01, 01, 0));
 }
 
-
+void calcTempo(DateTime data) {
+  var diff = DateTime.now().difference(data);
+  print("Dias: ${diff.inDays}");
+  print("Horas ${diff.inHours}");
+  // print("Anos: ${diff}");
+}
 
 void readNum() {
   numInfo(int.parse(stdin.readLineSync()!));
