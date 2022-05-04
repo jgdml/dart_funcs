@@ -12,35 +12,47 @@ Exercício 02 - para cada função "hospedeira", defina uma função anônima.
 */
 
 void init() {
-  // readNum();
+  readNum();
 
-  calcTempo(DateTime(2022, 01, 01, 0));
+  calcTempo(DateTime(2019, 12, 1, 0));
+}
+
+void readNum() {
+  int n = int.parse(stdin.readLineSync()!);
+  numInfo(n, evenCheck);
+  numInfo(n, negativeCheck);
+  numInfo(n, primeCheck);
 }
 
 void calcTempo(DateTime data) {
   var diff = DateTime.now().difference(data);
   print("Dias: ${diff.inDays}");
   print("Horas ${diff.inHours}");
-  // print("Anos: ${diff}");
+  print("Anos: ${(diff.inDays / 365.25).floorToDouble()}");
 }
 
-void readNum() {
-  numInfo(int.parse(stdin.readLineSync()!));
+void evenCheck(int n) {
+  print(n.isEven ? "$n é par" : "$n é ímpar");
 }
 
-void numInfo(int num) {
-  print(num.isEven ? "$num é par" : "$num é ímpar");
-  print(!num.isNegative ? "$num é maior que 0" : "$num é menor que 0");
+void negativeCheck(int n) {
+  print(!n.isNegative ? "$n é maior que 0" : "$n é menor que 0");
+}
 
-  for (int i = 1; i < num; i++) {
+void primeCheck(int n) {
+  for (int i = 1; i < n; i++) {
     // se o numero for divisivel por outro e esse outro não é 1
-    if (num % i == 0 && i != 1) {
-      print("$num não é número primo");
+    if (n % i == 0 && i != 1) {
+      print("$n não é número primo");
       break;
     }
     // se for o ultimo loop
-    if (i == num - 1) {
-      print("$num é número primo");
+    if (i == n - 1) {
+      print("$n é número primo");
     }
   }
+}
+
+void numInfo(int num, Function(int n) operacao) {
+  operacao(num);
 }
