@@ -15,13 +15,39 @@ void init() {
   readNum();
 
   calcTempo(DateTime(2019, 12, 1, 0));
+
+  mostrarSalario(280, 10, salarioAuxiliar);
+  mostrarSalario(280, 10, salarioJunior);
+  mostrarSalario(280, 10, salarioPleno);
 }
 
-void readNum() {
-  int n = int.parse(stdin.readLineSync()!);
-  numInfo(n, evenCheck);
-  numInfo(n, negativeCheck);
-  numInfo(n, primeCheck);
+void mostrarSalario(int diasTrabalhados, double valorHora,
+    double Function(int dias, double valor) calculoSalario) {
+  double salario = calculoSalario(diasTrabalhados, valorHora);
+  print("R\$${salario.toStringAsFixed(2)}");
+}
+
+// auxiliar trabalha 6 horas por dia
+double salarioAuxiliar(int dias, double valor) {
+  return dias * (valor * 6);
+}
+
+// junior trabalha 8 horas por dia e a cada 12 meses trabalhados tem direito a 13 salario
+double salarioJunior(int diasTrabalhados, double valorHora) {
+  double salarioDia = valorHora * 8;
+  // 12 meses são aprox. 250 dias considerando trabalho de 5 dias por semana
+  double bonus13 = (diasTrabalhados ~/ 250) * ((21 * salarioDia));
+  return (diasTrabalhados * salarioDia) + bonus13;
+}
+
+// pleno trabalha 8 horas por dia, recebe 13 salario e ferias remuneradas
+double salarioPleno(int diasTrabalhados, double valorHora) {
+  double salarioDia = valorHora * 8;
+  double bonus13 = (diasTrabalhados ~/ 250) * ((21 * salarioDia));
+  // 12 meses são aprox. 250 dias considerando trabalho de 5 dias por semana
+  double ferias = (diasTrabalhados ~/ 250) * ((21 * salarioDia) * 1.333);
+
+  return (diasTrabalhados * salarioDia) + bonus13 + ferias;
 }
 
 void calcTempo(DateTime data) {
@@ -29,6 +55,18 @@ void calcTempo(DateTime data) {
   print("Dias: ${diff.inDays}");
   print("Horas ${diff.inHours}");
   print("Anos: ${(diff.inDays / 365.25).floorToDouble()}");
+}
+
+void readNum() {
+  print("Insira um número: ");
+  int n = int.parse(stdin.readLineSync()!);
+  numInfo(n, evenCheck);
+  numInfo(n, negativeCheck);
+  numInfo(n, primeCheck);
+}
+
+void numInfo(int num, Function(int n) operacao) {
+  operacao(num);
 }
 
 void evenCheck(int n) {
@@ -51,8 +89,4 @@ void primeCheck(int n) {
       print("$n é número primo");
     }
   }
-}
-
-void numInfo(int num, Function(int n) operacao) {
-  operacao(num);
 }
