@@ -1,5 +1,4 @@
 import 'package:dart_funcs/a5_teste_unidade/aprovacao_nota.dart';
-import 'package:dart_funcs/a5_teste_unidade/aprovacao_presenca.dart';
 import 'package:test/test.dart';
 
 void main() {
