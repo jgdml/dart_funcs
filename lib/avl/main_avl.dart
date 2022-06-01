@@ -4,21 +4,24 @@ void init() {
   var obj1 = GameObject(Position(10, 30), Size(10, 10));
   var obj2 = GameObject(Position(20, 15), Size(10, 10));
 
-  var physics = Physics(gravity: 9, drag: 5, wind: 20, windDirection: "left");
-  obj1.speed = Speed(10, 0);
+  var physics = Physics(gravity: 1, drag: 5, wind: 5, windDirection: "left");
+  obj1.speed = Speed(10, 200);
 
   while (true) {
-    physics.physicsOnObject(obj1, [
-      physics.applyDrag,
-      physics.applyGravity,
-      physics.applyWind,
-    ]);
+    physics.physicsOnObject(
+      obj: obj1,
+      physics: [
+        physics.applyDrag,
+        physics.applyGravity,
+        physics.applyWind,
+      ],
+    );
 
     var x = obj1.pos.x.toStringAsFixed(2);
     var y = obj1.pos.y.toStringAsFixed(2);
 
     stdout.write("x: $x | y: $y");
-    stdout.write("\tcollided: ${checkCollision(obj1, obj2)}\r");
+    stdout.write("\tcollided: ${checkCollision(obj1: obj1, obj2: obj2)}\r");
     sleep(Duration(milliseconds: 100));
   }
 }
@@ -81,9 +84,8 @@ class GameObject {
   GameObject(this.pos, this.size, {this.weight = 10});
 
   // calcula a posicao de inicio e fim dos dois eixos
-  // ex: se o objeto tem um
-  // tamanho 10 no eixo X e estiver na posição 0
-  // então o começo desse objeto será na posição -5 e o fim em +5
+  // ex: se o objeto tem um tamanho 10 no eixo X e estiver na posição no eixo 0
+  // então o começo desse objeto no eixo X será em -5 e o fim em +5
   CoveredSpace getCoveredPos() {
     if (size.isEmpty) {
       throw GameException("The object size cannot be 0 or less");
@@ -113,38 +115,38 @@ class Physics {
   // aplica vento em uma direção específica de acordo com o peso do objeto
   void applyWind(GameObject obj) {
     if (windDirection == "left") {
-      obj.speed.x -= (wind * 10) / obj.weight;
+      obj.speed.x -= (wind) / obj.weight;
     } else if (windDirection == "right") {
-      obj.speed.x += (wind * 10) / obj.weight;
+      obj.speed.x += (wind) / obj.weight;
     }
   }
 
   // função que aplica a resistência do ar de maneira basica
   void applyDrag(GameObject obj) {
-    obj.speed.x -= drag / 10;
-    obj.speed.y -= drag / 10;
-
-    if (obj.speed.x < 0.001) {
-      obj.speed.x = 0;
-    }
-    if (obj.speed.y < 0.001) {
-      obj.speed.y = 0;
-    }
+    obj.speed.x -= drag / 100;
+    obj.speed.y -= drag / 100;
   }
 
   void applyGravity(GameObject obj) {
-    obj.speed.y -= ((gravity * 5) + obj.weight);
+    obj.speed.y -= (gravity + obj.weight) * ((obj.speed.y/100)+1);
   }
 
-  // aplica todos os elementos físicos definidos
-  // essa função seria chamada todo o frame em todos o objetos do jogo
-  // ela recebe como parametro uma lista de funções
-  void physicsOnObject(GameObject obj, [List<Function(GameObject)> functions = const []]) {
-    for (var function in functions) {
-      function(obj);
+  // aplica as funções relacionadas a física
+  // passadas por parâmetro e move o objeto
+  // essa função seria chamada todo o frame em objetos que tem física
+  void physicsOnObject({required GameObject obj, List<Function(GameObject)> physics = const []}) {
+    for (var physicsFunction in physics) {
+      physicsFunction(obj);
     }
-    obj.pos.x += (obj.speed.x / 100);
-    obj.pos.y += (obj.speed.y / 100);
+    obj.pos.x += (obj.speed.x / 10);
+    obj.pos.y += (obj.speed.y / 10);
+
+    if (obj.speed.x < 0.0001) {
+      obj.speed.x = 0;
+    }
+    if (obj.speed.y < 0.0001) {
+      obj.speed.y = 0;
+    }
   }
 }
 
@@ -157,16 +159,17 @@ bool isBetween(double n, double range1, double range2) {
 bool checkCollisionInAxis(double firstObjStart, double firstObjEnd, double secondObjStart, double secondObjEnd) {
   if (isBetween(firstObjStart, secondObjStart, secondObjEnd)) {
     return true;
-  }
-  if (isBetween(firstObjEnd, secondObjStart, secondObjEnd)) {
+  } else if (isBetween(firstObjEnd, secondObjStart, secondObjEnd)) {
     return true;
   }
   return false;
 }
 
-bool checkCollision(GameObject obj1, GameObject obj2) {
-  var obj1CoveredSpace = obj1.getCoveredPos();
-  var obj2CoveredSpace = obj2.getCoveredPos();
+// função que é chamada para checar a colisão
+// para haver uma colisão, é necessário haver uma colisão no eixo X e também no Y
+bool checkCollision({required GameObject obj1, required GameObject obj2}) {
+  CoveredSpace obj1CoveredSpace = obj1.getCoveredPos();
+  CoveredSpace obj2CoveredSpace = obj2.getCoveredPos();
 
   // checa se há uma colisão no eixo X
   bool collidedOnAxisX = checkCollisionInAxis(
