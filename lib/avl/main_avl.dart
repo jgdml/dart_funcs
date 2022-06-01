@@ -4,14 +4,14 @@ void init() {
   var obj1 = GameObject(Position(10, 30), Size(10, 10));
   var obj2 = GameObject(Position(20, 15), Size(10, 10));
 
-  var physics = Physics(gravity: 9, drag: 5);
-
+  var physics = Physics(gravity: 9, drag: 5, wind: 20, windDirection: "left");
   obj1.speed = Speed(10, 0);
 
   while (true) {
     physics.physicsOnObject(obj1, [
       physics.applyDrag,
       physics.applyGravity,
+      physics.applyWind,
     ]);
 
     var x = obj1.pos.x.toStringAsFixed(2);
@@ -28,6 +28,9 @@ class Position {
   double y;
 
   Position(this.x, this.y);
+
+  @override
+  bool operator ==(Object pos) => pos is Position && pos.x == x && pos.y == y;
 }
 
 class Size {
@@ -35,6 +38,8 @@ class Size {
   double y;
 
   Size(this.x, this.y);
+
+  bool get isEmpty => x <= 0 || y <= 0;
 }
 
 class Speed {
@@ -51,6 +56,20 @@ class CoveredSpace {
   Position end;
 
   CoveredSpace(this.start, this.end);
+
+  @override
+  bool operator ==(Object obj) => obj is CoveredSpace && obj.start == start && obj.end == end;
+}
+
+class GameException implements Exception {
+  String str;
+
+  GameException(this.str);
+
+  @override
+  String toString() {
+    return str;
+  }
 }
 
 class GameObject {
@@ -66,6 +85,10 @@ class GameObject {
   // tamanho 10 no eixo X e estiver na posição 0
   // então o começo desse objeto será na posição -5 e o fim em +5
   CoveredSpace getCoveredPos() {
+    if (size.isEmpty) {
+      throw GameException("The object size cannot be 0 or less");
+    }
+
     var space = CoveredSpace(
       Position(
         pos.x - size.x ~/ 2,
@@ -82,8 +105,19 @@ class GameObject {
 class Physics {
   int gravity;
   int drag;
+  int wind;
+  String windDirection;
 
-  Physics({this.gravity = 9, this.drag = 20});
+  Physics({this.gravity = 9, this.drag = 20, this.wind = 5, this.windDirection = "left"});
+
+  // aplica vento em uma direção específica de acordo com o peso do objeto
+  void applyWind(GameObject obj) {
+    if (windDirection == "left") {
+      obj.speed.x -= (wind * 10) / obj.weight;
+    } else if (windDirection == "right") {
+      obj.speed.x += (wind * 10) / obj.weight;
+    }
+  }
 
   // função que aplica a resistência do ar de maneira basica
   void applyDrag(GameObject obj) {
