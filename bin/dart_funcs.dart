@@ -13,5 +13,5 @@ void main(List<String> arguments) {
   // dep.show();
   // except.init();
   // teste.init();
-  av.init();
+  av.mainLoop();
 }
