@@ -1,63 +1,5 @@
 import 'dart:io';
 
-void mainLoop() {
-  // representando um objeto normal
-  var obj1 = GameObject(Position(10, 100), Size(10, 10));
-
-  // esse objeto representa o chão, logo, não terá física
-  var ground = GameObject(Position(0, 0), Size(1000, 10), grip: 10);
-
-  // definindo a física global para ser aplicada nos objetos
-  var physics = Physics(gravity: 1, drag: 5, wind: 5, windDirection: "left");
-  
-
-  while (true) {
-    physics.physicsOnObject(
-        obj: obj1,
-        physics: [
-          physics.applyDrag,
-          physics.applyGravity,
-          physics.applyWind,
-        ],
-      );
-
-    obj1.onCollisionWith(ground, () {
-      // caso o objeto esteja tocando o chão, além da gravidade, vento e resistência do ar
-      // também deverá ser aplicada a fricção entre o chão e o objeto
-      physics.physicsOnObject(
-        obj: obj1,
-        physics: [
-          (GameObject obj) {
-            var gripCalculation = 1-(((obj1.weight/10)+obj1.grip + ground.grip )/1000);
-            obj.speed.x *= gripCalculation;
-          }
-        ],
-      );
-    });
-
-    physics.moveObjectAccordingToSpeed(obj1);
-    
-    // antes de renderizar o frame verificar se
-    // a nova posição do objeto colide com o chão
-    obj1.onCollisionWith(ground, () {
-      // caso o objeto esteja tocando o chão,
-      // ele não pode mais cair
-      // e a posição dele será acima do chão
-      obj1.speed.y = 0;
-      obj1.pos.y = ground.pos.y + ground.size.y;
-    });
-
-    var x = obj1.pos.x.toStringAsFixed(2);
-    var y = obj1.pos.y.toStringAsFixed(2);
-    var sx = obj1.speed.x.toStringAsFixed(2);
-    var sy = obj1.speed.y.toStringAsFixed(2);
-
-    stdout.write("x: $x | y: $y\ts.x: ${sx} | s.y: ${sy}\r");
-    stdout.write("\tcollided: ${checkCollision(obj1: obj1, obj2: ground)}\r");
-    sleep(Duration(milliseconds: 100));
-  }
-}
-
 class Position {
   double x;
   double y;
@@ -107,6 +49,65 @@ class GameException implements Exception {
   }
 }
 
+void mainLoop() {
+  // representando um objeto normal
+  var obj1 = GameObject(Position(10, 100), Size(10, 100));
+
+  // esse objeto representa o chão, logo, não terá física
+  var ground = GameObject(Position(0, 0), Size(1000, 10), grip: 10);
+
+  // definindo a física global para ser aplicada nos objetos
+  var physics = Physics(gravity: 1, drag: 5, wind: 5, windDirection: "left");
+
+  obj1.speed = Speed(10, 0);
+
+  while (true) {
+    physics.physicsOnObject(
+      obj: obj1,
+      physics: [
+        physics.applyDrag,
+        physics.applyGravity,
+        // physics.applyWind,
+      ],
+    );
+
+    // obj1.onCollisionWith(ground, () {
+    //   // caso o objeto esteja tocando o chão, além da gravidade, vento e resistência do ar
+    //   // também deverá ser aplicada a fricção entre o chão e o objeto
+    //   physics.physicsOnObject(
+    //     obj: obj1,
+    //     physics: [
+    //       (GameObject obj) {
+    //         var gripCalculation = 1 - (((obj1.weight / 10) + obj1.grip + ground.grip) / 1000);
+    //         obj.speed.x *= gripCalculation;
+    //       }
+    //     ],
+    //   );
+    // });
+
+    physics.moveObjectAccordingToSpeed(obj1);
+
+    // antes de renderizar o frame verificar se
+    // a nova posição do objeto colide com o chão
+    obj1.onCollisionWith(ground, () {
+      // caso o objeto esteja tocando o chão,
+      // ele não pode mais cair
+      // e a posição dele será acima do chão
+      obj1.speed.y = 0;
+      obj1.pos.y = ground.pos.y + ground.size.y;
+    });
+
+    var x = obj1.pos.x.toStringAsFixed(2);
+    var y = obj1.pos.y.toStringAsFixed(2);
+    var sx = obj1.speed.x.toStringAsFixed(2);
+    var sy = obj1.speed.y.toStringAsFixed(2);
+
+    stdout.write("x: $x | y: $y\ts.x: ${sx} | s.y: ${sy}\r");
+    // stdout.write("\tcollided: ${checkCollision(obj1: obj1, obj2: ground)}\r");
+    sleep(Duration(milliseconds: 100));
+  }
+}
+
 class GameObject {
   Position pos;
   Size size;
@@ -114,7 +115,7 @@ class GameObject {
   int grip;
   Speed speed = Speed.zero;
 
-  GameObject(this.pos, this.size, {this.weight = 10, this.grip=5});
+  GameObject(this.pos, this.size, {this.weight = 10, this.grip = 5});
 
   // calcula a posicao de inicio e fim dos dois eixos
   // ex: se o objeto tem um tamanho 10 no eixo X e estiver na posição no eixo 0
@@ -164,9 +165,8 @@ class Physics {
 
   // função que aplica a resistência do ar de maneira básica
   void applyDrag(GameObject obj) {
-    var dragCalculation = (1 - (drag / 100));
-    obj.speed.x *= dragCalculation;
-    obj.speed.y *= dragCalculation;
+    obj.speed.x *= (1 - ((drag / 100) + (obj.size.y / 1000)));
+    obj.speed.y *= (1 - ((drag / 100) + (obj.size.x / 1000)));
   }
 
   void applyGravity(GameObject obj) {
@@ -183,9 +183,10 @@ class Physics {
     }
   }
 
-  void moveObjectAccordingToSpeed(GameObject obj){
+  Position moveObjectAccordingToSpeed(GameObject obj) {
     obj.pos.x += (obj.speed.x / 10);
     obj.pos.y += (obj.speed.y / 10);
+    return Position(obj.pos.x, obj.pos.y);
   }
 
   // aplica as funções relacionadas a física
@@ -196,7 +197,6 @@ class Physics {
       physicsFunction(obj);
     }
   }
-
 }
 
 // função para facilitar a comparação

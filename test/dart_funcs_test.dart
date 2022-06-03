@@ -5,7 +5,6 @@ import 'package:test/test.dart';
 
 void main() {
   group("Teste função getCoveredSpace", () {
-
     test("Objeto com posição zero", () {
       expect(
         GameObject(Position(0, 0), Size(10, 10)).getCoveredPos(),
@@ -61,7 +60,72 @@ void main() {
     });
   });
 
-  
+  group("Teste função checkCollision", () {
+    test("Objeto colidindo", () {
+      var obj1 = GameObject(Position(10, 10), Size(10, 10));
+      var obj2 = GameObject(Position(5, 5), Size(10, 10));
+
+      expect(checkCollision(obj1: obj1, obj2: obj2), true);
+    });
+
+    test("Objeto não colidindo", () {
+      var obj1 = GameObject(Position(10, 10), Size(10, 10));
+      var obj2 = GameObject(Position(20, 10), Size(10, 10));
+
+      expect(checkCollision(obj1: obj1, obj2: obj2), true);
+    });
+
+    test("Objeto com posicao 0 colidindo", () {
+      var obj1 = GameObject(Position(0, 0), Size(10, 10));
+      var obj2 = GameObject(Position(5, 5), Size(10, 10));
+
+      expect(checkCollision(obj1: obj1, obj2: obj2), true);
+    });
+
+    test("Objeto com posicao 0 não colidindo", () {
+      var obj1 = GameObject(Position(0, 0), Size(10, 10));
+      var obj2 = GameObject(Position(20, 20), Size(10, 10));
+
+      expect(checkCollision(obj1: obj1, obj2: obj2), false);
+    });
+
+    test("Objeto com posicao negativa colidindo", () {
+      var obj1 = GameObject(Position(-10, -10), Size(10, 10));
+      var obj2 = GameObject(Position(0, 0), Size(10, 10));
+
+      expect(checkCollision(obj1: obj1, obj2: obj2), true);
+    });
+
+    test("Objeto com posicao nagativa não colidindo", () {
+      var obj1 = GameObject(Position(-10, -10), Size(10, 10));
+      var obj2 = GameObject(Position(20, 20), Size(10, 10));
+
+      expect(checkCollision(obj1: obj1, obj2: obj2), false);
+    });
+
+    test("Objeto com tamanho 0", () {
+      var obj1 = GameObject(Position(10, 10), Size(10, 0));
+      var obj2 = GameObject(Position(5, 5), Size(10, 10));
+
+      expect(() => checkCollision(obj1: obj1, obj2: obj2), throwsA(isA<GameException>()));
+    });
+
+    test("Objeto com tamanho negativo", () {
+      var obj1 = GameObject(Position(10, 10), Size(10, -10));
+      var obj2 = GameObject(Position(5, 5), Size(10, 10));
+
+      expect(() => checkCollision(obj1: obj1, obj2: obj2), throwsA(isA<GameException>()));
+    });
+  });
+
+  // group("Teste classe physics", () {
+  //   var objTeste = GameObject(Position(10, 10), Size(10, 10));
+  //   test("Teste gravidade positiva", (() {
+  //     var physics = Physics(gravity: 5);
+
+  //     expect(physics.physicsOnObject(obj: objTeste, physics: [physics.applyGravity]), );
+  //   })
+  // });
 
   ////////////////////////////////////////////
   ////////////////////////////////////////////
