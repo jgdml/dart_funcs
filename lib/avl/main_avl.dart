@@ -58,61 +58,6 @@ class PhysicsException implements Exception {
   }
 }
 
-void mainLoop() {
-  // representando um objeto normal
-  var obj1 = GameObject(Position(10, 11), Size(10, 10));
-
-  // esse objeto representa o chão, logo, não terá física
-  var ground = GameObject(Position(0, 0), Size(1000, 10), grip: 10);
-
-  // definindo a física global para ser aplicada nos objetos
-  var physics = Physics(gravity: 1, drag: 10, wind: 5, windDirection: "left");
-
-  obj1.speed = Speed(100, 0);
-
-  while (true) {
-    physics.physicsOnObject(
-      obj: obj1,
-      physics: [
-        physics.applyDrag,
-        physics.applyGravity,
-        physics.applyWind,
-      ],
-    );
-
-    obj1.onCollisionWith(ground, () {
-      // caso o objeto esteja tocando o chão, além da gravidade, vento e resistência do ar
-      // também deverá ser aplicada a fricção entre o chão e o objeto
-      physics.physicsOnObject(
-        obj: obj1,
-        physics: [
-          (GameObject obj) {
-            var gripCalculation = 1 - (((obj1.grip + ground.grip)) + (obj1.weight / 10)) / 200;
-
-            if (gripCalculation.abs() > .99) {
-              throw PhysicsException("Maximum grip amount exceeded");
-            }
-
-            obj.speed.x *= gripCalculation;
-          }
-        ],
-      );
-    });
-
-    physics.moveObjectAccordingToSpeed(obj1);
-
-    // antes de renderizar o frame verificar se
-    // a nova posição do objeto colide com o chão
-    obj1.onCollisionWith(ground, () {
-      // caso o objeto esteja tocando o chão,
-      // ele não pode mais cair
-      // e a posição dele será acima do chão
-      obj1.speed.y = 0;
-      obj1.pos.y = ground.pos.y + ground.size.y;
-    });
-
-  }
-}
 
 class GameObject {
   Position pos;
@@ -248,4 +193,62 @@ bool checkCollision({required GameObject obj1, required GameObject obj2}) {
   );
 
   return collidedOnAxisX && collidedOnAxisY;
+}
+
+
+// o mainLoop é onde o jogo seria iniciado
+void mainLoop() {
+  // representando um objeto normal
+  var obj1 = GameObject(Position(10, 11), Size(10, 10));
+
+  // esse objeto representa o chão, logo, não terá física
+  var ground = GameObject(Position(0, 0), Size(1000, 10), grip: 10);
+
+  // definindo a física global para ser aplicada nos objetos
+  var physics = Physics(gravity: 1, drag: 10, wind: 5, windDirection: "left");
+
+  obj1.speed = Speed(100, 0);
+
+  while (true) {
+    physics.physicsOnObject(
+      obj: obj1,
+      physics: [
+        physics.applyDrag,
+        physics.applyGravity,
+        physics.applyWind,
+      ],
+    );
+
+    obj1.onCollisionWith(ground, () {
+      // caso o objeto esteja tocando o chão, além da gravidade, vento e resistência do ar
+      // também deverá ser aplicada a fricção entre o chão e o objeto
+      physics.physicsOnObject(
+        obj: obj1,
+        physics: [
+          (GameObject obj) {
+            var gripCalculation = 1 - (((obj1.grip + ground.grip)) + (obj1.weight / 10)) / 200;
+
+            if (gripCalculation.abs() > .99) {
+              throw PhysicsException("Maximum grip amount exceeded");
+            }
+
+            obj.speed.x *= gripCalculation;
+          }
+        ],
+      );
+    });
+
+    physics.moveObjectAccordingToSpeed(obj1);
+
+    // antes de renderizar o frame verificar se
+    // a nova posição do objeto colide com o chão
+    obj1.onCollisionWith(ground, () {
+      // caso o objeto esteja tocando o chão,
+      // ele não pode mais cair
+      // e a posição dele será acima do chão
+      obj1.speed.y = 0;
+      obj1.pos.y = ground.pos.y + ground.size.y;
+    });
+
+  }
 }
