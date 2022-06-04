@@ -49,15 +49,26 @@ class GameException implements Exception {
   }
 }
 
+class PhysicsException implements Exception {
+  String str;
+
+  PhysicsException(this.str);
+
+  @override
+  String toString() {
+    return str;
+  }
+}
+
 void mainLoop() {
   // representando um objeto normal
-  var obj1 = GameObject(Position(10, 100), Size(10, 10));
+  var obj1 = GameObject(Position(10, 11), Size(10, 10));
 
   // esse objeto representa o chão, logo, não terá física
   var ground = GameObject(Position(0, 0), Size(1000, 10), grip: 10);
 
   // definindo a física global para ser aplicada nos objetos
-  var physics = Physics(gravity: 1, drag: 5, wind: 5, windDirection: "left");
+  var physics = Physics(gravity: 1, drag: 10, wind: 5, windDirection: "left");
 
   obj1.speed = Speed(100, 0);
 
@@ -80,8 +91,8 @@ void mainLoop() {
           (GameObject obj) {
             var gripCalculation = 1 - (((obj1.grip + ground.grip)) + (obj1.weight / 10)) / 200;
 
-            if (gripCalculation.abs() > 1) {
-              throw GameException("Maximum grip amount exceeded");
+            if (gripCalculation.abs() > .99) {
+              throw PhysicsException("Maximum grip amount exceeded");
             }
 
             obj.speed.x *= gripCalculation;
@@ -170,6 +181,10 @@ class Physics {
 
   // função que aplica a resistência do ar de maneira básica
   void applyDrag(GameObject obj) {
+    var dragCalculation = Speed((1 - ((drag / 100) + (obj.size.y / 1000))), (1 - ((drag / 100) + (obj.size.x / 1000))));
+    if (dragCalculation.y.abs() > .99 || dragCalculation.y.abs() > .99){
+      throw PhysicsException("Maximum drag amount exceeded");
+    }    
     obj.speed.x *= (1 - ((drag / 100) + (obj.size.y / 1000)));
     obj.speed.y *= (1 - ((drag / 100) + (obj.size.x / 1000)));
   }
@@ -179,6 +194,7 @@ class Physics {
     obj.speed.y -= gravityCalculation;
   }
 
+  // caso a velocidade do objeto seja muito pequena, parar ele
   void verifyStopObject(GameObject obj) {
     if (obj.speed.x.abs() < 0.01) {
       obj.speed.x = 0;
