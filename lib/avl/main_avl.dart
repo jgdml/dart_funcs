@@ -51,7 +51,7 @@ class GameException implements Exception {
 
 void mainLoop() {
   // representando um objeto normal
-  var obj1 = GameObject(Position(10, 100), Size(10, 100));
+  var obj1 = GameObject(Position(10, 100), Size(10, 10));
 
   // esse objeto representa o chão, logo, não terá física
   var ground = GameObject(Position(0, 0), Size(1000, 10), grip: 10);
@@ -59,7 +59,7 @@ void mainLoop() {
   // definindo a física global para ser aplicada nos objetos
   var physics = Physics(gravity: 1, drag: 5, wind: 5, windDirection: "left");
 
-  obj1.speed = Speed(10, 0);
+  obj1.speed = Speed(100, 0);
 
   while (true) {
     physics.physicsOnObject(
@@ -67,23 +67,28 @@ void mainLoop() {
       physics: [
         physics.applyDrag,
         physics.applyGravity,
-        // physics.applyWind,
+        physics.applyWind,
       ],
     );
 
-    // obj1.onCollisionWith(ground, () {
-    //   // caso o objeto esteja tocando o chão, além da gravidade, vento e resistência do ar
-    //   // também deverá ser aplicada a fricção entre o chão e o objeto
-    //   physics.physicsOnObject(
-    //     obj: obj1,
-    //     physics: [
-    //       (GameObject obj) {
-    //         var gripCalculation = 1 - (((obj1.weight / 10) + obj1.grip + ground.grip) / 1000);
-    //         obj.speed.x *= gripCalculation;
-    //       }
-    //     ],
-    //   );
-    // });
+    obj1.onCollisionWith(ground, () {
+      // caso o objeto esteja tocando o chão, além da gravidade, vento e resistência do ar
+      // também deverá ser aplicada a fricção entre o chão e o objeto
+      physics.physicsOnObject(
+        obj: obj1,
+        physics: [
+          (GameObject obj) {
+            var gripCalculation = 1 - (((obj1.grip + ground.grip)) + (obj1.weight / 10)) / 200;
+
+            if (gripCalculation.abs() > 1) {
+              throw GameException("Maximum grip amount exceeded");
+            }
+
+            obj.speed.x *= gripCalculation;
+          }
+        ],
+      );
+    });
 
     physics.moveObjectAccordingToSpeed(obj1);
 
