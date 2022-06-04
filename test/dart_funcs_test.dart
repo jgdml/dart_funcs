@@ -4,7 +4,7 @@ import 'package:dart_funcs/avl/main_avl.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group("Teste função getCoveredSpace", () {
+  group("Teste função getCoveredPos", () {
     test("Objeto com posição zero", () {
       expect(
         GameObject(Position(0, 0), Size(10, 10)).getCoveredPos(),
@@ -118,14 +118,133 @@ void main() {
     });
   });
 
-  // group("Teste classe physics", () {
-  //   var objTeste = GameObject(Position(10, 10), Size(10, 10));
-  //   test("Teste gravidade positiva", (() {
-  //     var physics = Physics(gravity: 5);
+  group("Teste função applyDrag", () {
+    test("Teste resistência positiva", (() {
+      var objTeste = GameObject(Position(10, 10), Size(10, 10));
+      var physics = Physics(drag: 5);
 
-  //     expect(physics.physicsOnObject(obj: objTeste, physics: [physics.applyGravity]), );
-  //   })
-  // });
+      objTeste.speed = Speed(10, 10);
+
+      physics.physicsOnObject(
+        obj: objTeste,
+        physics: [physics.applyDrag],
+      );
+      physics.moveObjectAccordingToSpeed(objTeste);
+
+      expect(objTeste.pos, Position(10.94, 10.94));
+    }));
+    test("Teste resistência 0", () {
+      var objTeste = GameObject(Position(10, 10), Size(10, 10));
+      var physics = Physics(drag: 0);
+
+      objTeste.speed = Speed(10, 10);
+
+      physics.physicsOnObject(
+        obj: objTeste,
+        physics: [physics.applyDrag],
+      );
+      physics.moveObjectAccordingToSpeed(objTeste);
+
+      expect(objTeste.pos, Position(10.99, 10.99));
+    });
+    test("Teste resistência negativa", () {
+      var objTeste = GameObject(Position(10, 10), Size(10, 10));
+      var physics = Physics(drag: -10);
+
+      objTeste.speed = Speed(10, 10);
+
+      expect(
+        () => physics.physicsOnObject(
+          obj: objTeste,
+          physics: [physics.applyDrag],
+        ),
+        throwsA(isA<PhysicsException>()),
+      );
+    });
+
+    test("Teste resistência acima do normal", () {
+      var objTeste = GameObject(Position(10, 10), Size(10, 10));
+      var physics = Physics(drag: 300);
+
+      objTeste.speed = Speed(10, 10);
+
+      expect(
+        () => physics.physicsOnObject(
+          obj: objTeste,
+          physics: [physics.applyDrag],
+        ),
+        throwsA(isA<PhysicsException>()),
+      );
+    });
+  });
+
+  group("Teste função applyGravity", () {
+    test("Gravidade positiva", () {
+      var objTeste = GameObject(Position(10, 10), Size(10, 10));
+      var physics = Physics(gravity: 10);
+
+      objTeste.speed = Speed(10, 10);
+      physics.physicsOnObject(
+        obj: objTeste,
+        physics: [physics.applyGravity],
+      );
+      physics.moveObjectAccordingToSpeed(objTeste);
+      expect(objTeste.pos, Position(11, 9.2));
+    });
+    test("Gravidade 0", () {
+      var objTeste = GameObject(Position(10, 10), Size(10, 10));
+      var physics = Physics(gravity: 0);
+
+      objTeste.speed = Speed(10, 10);
+      physics.physicsOnObject(
+        obj: objTeste,
+        physics: [physics.applyGravity],
+      );
+      physics.moveObjectAccordingToSpeed(objTeste);
+      expect(objTeste.pos, Position(11, 10.1));
+    });
+    test("Gravidade negativa", () {
+      var objTeste = GameObject(Position(10, 10), Size(10, 10));
+      var physics = Physics(gravity: -20);
+
+      objTeste.speed = Speed(10, 10);
+      physics.physicsOnObject(
+        obj: objTeste,
+        physics: [physics.applyGravity],
+      );
+      physics.moveObjectAccordingToSpeed(objTeste);
+      expect(objTeste.pos, Position(11, 11.9));
+    });
+  });
+
+  group("Teste Função moveObjectAccordingToSpeed", () {
+    test("Velocidade positiva", () {
+      var objTeste = GameObject(Position(10, 10), Size(10, 10));
+      var physics = Physics();
+
+      objTeste.speed = Speed(10, 10);
+
+      expect(physics.moveObjectAccordingToSpeed(objTeste), Position(11, 11));
+    });
+
+    test("Velocidade negativa", () {
+      var objTeste = GameObject(Position(10, 10), Size(10, 10));
+      var physics = Physics();
+
+      objTeste.speed = Speed(-10, -10);
+
+      expect(physics.moveObjectAccordingToSpeed(objTeste), Position(9, 9));
+    });
+
+    test("Velocidade 0", () {
+      var objTeste = GameObject(Position(10, 10), Size(10, 10));
+      var physics = Physics();
+
+      objTeste.speed = Speed(0, 0);
+
+      expect(physics.moveObjectAccordingToSpeed(objTeste), Position(10, 10));
+    });
+  });
 
   ////////////////////////////////////////////
   ////////////////////////////////////////////
