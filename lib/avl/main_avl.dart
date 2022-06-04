@@ -1,5 +1,3 @@
-import 'dart:io';
-
 class Position {
   double x;
   double y;
@@ -113,14 +111,6 @@ void mainLoop() {
       obj1.pos.y = ground.pos.y + ground.size.y;
     });
 
-    var x = obj1.pos.x.toStringAsFixed(2);
-    var y = obj1.pos.y.toStringAsFixed(2);
-    var sx = obj1.speed.x.toStringAsFixed(2);
-    var sy = obj1.speed.y.toStringAsFixed(2);
-
-    stdout.write("x: $x | y: $y\ts.x: ${sx} | s.y: ${sy}\r");
-    // stdout.write("\tcollided: ${checkCollision(obj1: obj1, obj2: ground)}\r");
-    sleep(Duration(milliseconds: 100));
   }
 }
 
